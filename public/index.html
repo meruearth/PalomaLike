@@ -1,0 +1,1762 @@
+
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>POS System</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background: #f5f5f5;
+                color: #333;
+            }
+
+            .container {
+                display: flex;
+                height: 100vh;
+            }
+
+            /* Боковая панель */
+            .sidebar {
+                width: 250px;
+                background: #2c3e50;
+                color: white;
+                padding: 20px 0;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .logo {
+                text-align: center;
+                padding: 20px;
+                border-bottom: 1px solid #34495e;
+                margin-bottom: 20px;
+            }
+
+            .logo h1 {
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+
+            .logo p {
+                font-size: 12px;
+                opacity: 0.7;
+            }
+
+            .nav-menu {
+                flex: 1;
+            }
+
+            .nav-item {
+                display: block;
+                padding: 15px 20px;
+                color: white;
+                text-decoration: none;
+                border: none;
+                background: none;
+                width: 100%;
+                text-align: left;
+                cursor: pointer;
+                transition: background-color 0.3s;
+                font-size: 16px;
+            }
+
+            .nav-item:hover {
+                background: #34495e;
+            }
+
+            .nav-item.active {
+                background: #3498db;
+            }
+
+            .nav-item i {
+                margin-right: 10px;
+                width: 20px;
+            }
+
+            .user-section {
+                border-top: 1px solid #34495e;
+                padding: 20px;
+            }
+
+            .user-info {
+                margin-bottom: 15px;
+            }
+
+            .logout-btn {
+                width: 100%;
+                padding: 10px;
+                background: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                transition: background-color 0.3s;
+            }
+
+            .logout-btn:hover {
+                background: #c0392b;
+            }
+
+            /* Основной контент */
+            .main-content {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .header {
+                background: white;
+                padding: 20px;
+                border-bottom: 1px solid #e9ecef;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .content-area {
+                flex: 1;
+                padding: 20px;
+                overflow-y: auto;
+            }
+
+            .section {
+                display: none;
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .section.active {
+                display: block;
+            }
+
+            .section h2 {
+                margin-bottom: 20px;
+                color: #2c3e50;
+                border-bottom: 2px solid #ecf0f1;
+                padding-bottom: 10px;
+            }
+
+            /* Статистика */
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+
+            .stat-card {
+                background: linear-gradient(135deg, #3498db, #2980b9);
+                color: white;
+                padding: 25px;
+                border-radius: 10px;
+                text-align: center;
+                cursor: pointer;
+                transition: transform 0.3s;
+            }
+
+            .stat-card:hover {
+                transform: translateY(-5px);
+            }
+
+            .stat-card h3 {
+                font-size: 32px;
+                margin-bottom: 10px;
+            }
+
+            .stat-card p {
+                font-size: 14px;
+                opacity: 0.9;
+            }
+
+            /* Столы */
+            .tables-section {
+                display: grid;
+                grid-template-columns: 2fr 1fr;
+                gap: 30px;
+            }
+
+            .tables-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+
+            .table-card {
+                background: #f8f9fa;
+                border: 2px solid #e9ecef;
+                border-radius: 10px;
+                padding: 20px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s;
+                position: relative;
+            }
+
+            .table-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            }
+
+            .table-card.occupied {
+                background: #fff5f5;
+                border-color: #e74c3c;
+            }
+
+            .table-card.selected {
+                background: #e3f2fd;
+                border-color: #2196f3;
+            }
+
+            .table-status {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #27ae60;
+            }
+
+            .table-card.occupied .table-status {
+                background: #e74c3c;
+            }
+
+            .table-info {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 20px;
+            }
+
+            /* Меню */
+            .menu-section {
+                display: grid;
+                grid-template-columns: 250px 1fr;
+                gap: 30px;
+            }
+
+            .categories-list {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 20px;
+            }
+
+            .category-item {
+                display: block;
+                width: 100%;
+                padding: 12px 16px;
+                background: white;
+                border: 1px solid #e9ecef;
+                border-radius: 6px;
+                margin-bottom: 8px;
+                cursor: pointer;
+                transition: all 0.3s;
+                text-align: left;
+            }
+
+            .category-item:hover {
+                background: #e9ecef;
+            }
+
+            .category-item.active {
+                background: #3498db;
+                color: white;
+                border-color: #3498db;
+            }
+
+            .menu-items {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .menu-item {
+                background: white;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 20px;
+                cursor: pointer;
+                transition: all 0.3s;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .menu-item:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+
+            .menu-item h3 {
+                margin-bottom: 8px;
+                color: #2c3e50;
+            }
+
+            .menu-item .price {
+                font-size: 18px;
+                font-weight: bold;
+                color: #27ae60;
+            }
+
+            /* Касса */
+            .cashier-section {
+                display: grid;
+                grid-template-columns: 1fr 400px;
+                gap: 30px;
+            }
+
+            .order-area {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 20px;
+            }
+
+            .order-summary {
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                border: 1px solid #e9ecef;
+            }
+
+            .order-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 10px 0;
+                border-bottom: 1px solid #f1f1f1;
+            }
+
+            .order-item:last-child {
+                border-bottom: none;
+            }
+
+            .order-total {
+                font-size: 24px;
+                font-weight: bold;
+                color: #2c3e50;
+                text-align: right;
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 2px solid #3498db;
+            }
+
+            .payment-methods {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                margin-top: 20px;
+            }
+
+            .btn {
+                padding: 12px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 500;
+                transition: all 0.3s;
+                text-decoration: none;
+                display: inline-block;
+                text-align: center;
+            }
+
+            .btn-primary {
+                background: #3498db;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background: #2980b9;
+            }
+
+            .btn-success {
+                background: #27ae60;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background: #219a52;
+            }
+
+            .btn-danger {
+                background: #e74c3c;
+                color: white;
+            }
+
+            .btn-danger:hover {
+                background: #c0392b;
+            }
+
+            .btn-small {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            /* Формы */
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #2c3e50;
+                font-weight: 500;
+            }
+
+            .form-group input,
+            .form-group select {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 14px;
+            }
+
+            /* Модальные окна */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+            }
+
+            .modal-content {
+                background-color: white;
+                margin: 5% auto;
+                padding: 30px;
+                border-radius: 10px;
+                width: 90%;
+                max-width: 800px;
+                max-height: 80%;
+                overflow-y: auto;
+                position: relative;
+            }
+
+            .close {
+                color: #aaa;
+                float: right;
+                font-size: 28px;
+                font-weight: bold;
+                cursor: pointer;
+                position: absolute;
+                right: 20px;
+                top: 15px;
+            }
+
+            .close:hover {
+                color: #000;
+            }
+
+            /* Форма входа */
+            .login-form {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .login-card {
+                background: white;
+                padding: 40px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                width: 400px;
+                max-width: 90%;
+            }
+
+            .login-card h2 {
+                text-align: center;
+                margin-bottom: 30px;
+                color: #2c3e50;
+            }
+
+            .hidden {
+                display: none !important;
+            }
+
+            /* Адаптивность */
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 200px;
+                }
+                
+                .tables-section,
+                .menu-section,
+                .cashier-section {
+                    grid-template-columns: 1fr;
+                }
+                
+                .stats-grid {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+
+            /* Списки заказов */
+            .orders-list {
+                space: 15px;
+            }
+
+            .order-card {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .order-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #e9ecef;
+            }
+
+            .status-badge {
+                padding: 4px 12px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: bold;
+                text-transform: uppercase;
+            }
+
+            .status-new { background: #fff3cd; color: #856404; }
+            .status-preparing { background: #cff4fc; color: #055160; }
+            .status-paid { background: #d1edff; color: #084298; }
+            .status-closed { background: #d4edda; color: #155724; }
+
+            /* Управление меню */
+            .management-section {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 30px;
+            }
+
+            .management-item {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .management-item-info {
+                flex: 1;
+            }
+
+            .management-item-actions {
+                display: flex;
+                gap: 10px;
+            }
+
+            .add-form {
+                background: white;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .form-row {
+                display: grid;
+                grid-template-columns: 1fr 1fr 1fr auto;
+                gap: 10px;
+                align-items: end;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Форма входа -->
+        <div id="loginForm" class="login-form">
+            <div class="login-card">
+                <h2>🍽️ Вход в POS систему</h2>
+                <div class="form-group">
+                    <label for="pin">PIN код:</label>
+                    <input type="password" id="pin" placeholder="Введите PIN код" />
+                </div>
+                <button class="btn btn-primary" style="width: 100%" onclick="login()">
+                    Войти
+                </button>
+            </div>
+        </div>
+
+        <!-- Основной интерфейс -->
+        <div id="mainApp" class="container hidden">
+            <!-- Боковая панель -->
+            <div class="sidebar">
+                <div class="logo">
+                    <h1>🍽️ POS</h1>
+                    <p>Система управления</p>
+                </div>
+                
+                <nav class="nav-menu">
+                    <button class="nav-item active" onclick="showSection('dashboard')">
+                        📊 Главная
+                    </button>
+                    <button class="nav-item" onclick="showSection('orders')">
+                        📋 Заказы
+                    </button>
+                    <button class="nav-item" onclick="showSection('tables')">
+                        🪑 Столики
+                    </button>
+                    <button class="nav-item" onclick="showSection('menu')">
+                        📖 Меню
+                    </button>
+                    <button class="nav-item" onclick="showSection('cashier')">
+                        💰 Касса
+                    </button>
+                    <button id="adminMenuBtn" class="nav-item hidden" onclick="showSection('admin')">
+                        ⚙️ Администрирование
+                    </button>
+                </nav>
+                
+                <div class="user-section">
+                    <div class="user-info">
+                        <strong id="userName">Пользователь</strong>
+                        <p style="font-size: 12px; opacity: 0.7;" id="userRole">Роль</p>
+                    </div>
+                    <button class="logout-btn" onclick="logout()">
+                        Выйти
+                    </button>
+                </div>
+            </div>
+
+            <!-- Основной контент -->
+            <div class="main-content">
+                <div class="header">
+                    <h1 id="pageTitle">Главная панель</h1>
+                </div>
+                
+                <div class="content-area">
+                    <!-- Главная панель -->
+                    <div id="dashboard" class="section active">
+                        <div class="stats-grid" id="statsGrid">
+                            <!-- Статистика загружается динамически -->
+                        </div>
+                        
+                        <h3>Быстрые действия</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="showSection('cashier')">
+                                💰 Новый заказ
+                            </button>
+                            <button class="btn btn-success" onclick="showSection('tables')">
+                                🪑 Управление столами
+                            </button>
+                            <button class="btn btn-primary" onclick="showOrdersHistory()">
+                                📋 История заказов
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Заказы -->
+                    <div id="orders" class="section">
+                        <h2>📋 Управление заказами</h2>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px;">
+                            <div>
+                                <h3>Активные заказы</h3>
+                                <div id="activeOrdersList">
+                                    <!-- Активные заказы загружаются динамически -->
+                                </div>
+                            </div>
+                            <div>
+                                <h3>Статистика продаж</h3>
+                                <div id="salesStats">
+                                    <!-- Статистика продаж загружается динамически -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Столики -->
+                    <div id="tables" class="section">
+                        <h2>🪑 Управление столиками</h2>
+                        
+                        <div class="tables-section">
+                            <div>
+                                <h3>Схема зала</h3>
+                                <div class="tables-grid" id="tablesGrid">
+                                    <!-- Столы загружаются динамически -->
+                                </div>
+                            </div>
+                            <div class="table-info" id="tableInfo">
+                                <h3>Информация о столике</h3>
+                                <p>Выберите столик для просмотра информации</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Меню -->
+                    <div id="menu" class="section">
+                        <h2>📖 Меню</h2>
+                        
+                        <div class="menu-section">
+                            <div class="categories-list">
+                                <h3>Категории</h3>
+                                <div id="menuCategories">
+                                    <!-- Категории загружаются динамически -->
+                                </div>
+                            </div>
+                            <div>
+                                <h3 id="menuSectionTitle">Все позиции</h3>
+                                <div class="menu-items" id="menuItems">
+                                    <!-- Позиции меню загружаются динамически -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Касса -->
+                    <div id="cashier" class="section">
+                        <h2>💰 Касса</h2>
+                        
+                        <div class="cashier-section">
+                            <div class="order-area">
+                                <div style="margin-bottom: 20px;">
+                                    <label>Выберите стол:</label>
+                                    <select id="tableSelect" style="width: 100%; padding: 10px; margin-top: 5px;">
+                                        <option value="">Выберите стол</option>
+                                    </select>
+                                </div>
+                                
+                                <h3>Быстрое добавление</h3>
+                                <div class="menu-items" id="cashierMenuItems">
+                                    <!-- Меню для кассы загружается динамически -->
+                                </div>
+                            </div>
+                            <div>
+                                <div class="order-summary">
+                                    <h3>Текущий заказ</h3>
+                                    <div id="orderItems">
+                                        <p style="text-align: center; color: #95a5a6; padding: 20px;">
+                                            Выберите стол и добавьте товары
+                                        </p>
+                                    </div>
+                                    <div class="order-total">
+                                        Итого: $<span id="orderTotal">0.00</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="payment-methods" id="paymentMethodsButtons">
+                                    <!-- Кнопки методов оплаты загружаются динамически -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Администрирование -->
+                    <div id="admin" class="section">
+                        <h2>⚙️ Администрирование</h2>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 30px;">
+                            <div>
+                                <h3>Управление категориями</h3>
+                                <div class="add-form">
+                                    <div class="form-row">
+                                        <input type="text" id="newCategoryName" placeholder="Название категории">
+                                        <button class="btn btn-success" onclick="addCategory()">Добавить</button>
+                                    </div>
+                                </div>
+                                <div id="categoriesManagement">
+                                    <!-- Управление категориями -->
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3>Управление товарами</h3>
+                                <div class="add-form">
+                                    <div class="form-row">
+                                        <input type="text" id="newItemName" placeholder="Название товара">
+                                        <input type="number" id="newItemPrice" placeholder="Цена" step="0.01">
+                                        <select id="newItemCategory">
+                                            <option value="">Выберите категорию</option>
+                                        </select>
+                                        <button class="btn btn-success" onclick="addItem()">Добавить</button>
+                                    </div>
+                                </div>
+                                <div id="itemsManagement">
+                                    <!-- Управление товарами -->
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <h3>Методы оплаты</h3>
+                                <div class="add-form">
+                                    <div class="form-row">
+                                        <input type="text" id="newPaymentName" placeholder="Название метода">
+                                        <input type="text" id="newPaymentCode" placeholder="Код (например: qr)">
+                                        <button class="btn btn-success" onclick="addPaymentMethod()">Добавить</button>
+                                    </div>
+                                </div>
+                                <div id="paymentMethodsManagement">
+                                    <!-- Управление методами оплаты -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальные окна -->
+        <div id="ordersModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeOrdersModal()">&times;</span>
+                <h2>📋 История заказов сегодня</h2>
+                <div id="ordersHistory">
+                    <!-- История заказов -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно для расчета сдачи -->
+        <div id="cashPaymentModal" class="modal">
+            <div class="modal-content" style="max-width: 400px;">
+                <span class="close" onclick="closeCashPaymentModal()">&times;</span>
+                <h2>💵 Оплата наличными</h2>
+                <div style="margin: 20px 0;">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 10px;">Сумма к оплате:</h3>
+                        <div style="font-size: 32px; font-weight: bold; color: #27ae60; text-align: center;">
+                            $<span id="totalToPay">0.00</span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="cashReceived">Получено от клиента:</label>
+                        <input type="number" id="cashReceived" step="0.01" min="0" 
+                               placeholder="Введите сумму" style="font-size: 18px; text-align: center;"
+                               oninput="calculateChange()">
+                    </div>
+                    
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                        <h3 style="margin-bottom: 10px;">Сдача:</h3>
+                        <div style="font-size: 28px; font-weight: bold; text-align: center;" id="changeAmount">
+                            $0.00
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px;">
+                        <button class="btn btn-danger" onclick="closeCashPaymentModal()">
+                            Отмена
+                        </button>
+                        <button class="btn btn-success" id="confirmPaymentBtn" onclick="confirmCashPayment()" disabled>
+                            Подтвердить оплату
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Глобальные переменные
+            let currentUser = null;
+            let selectedTable = null;
+            let currentOrder = [];
+            let categories = [];
+            let items = [];
+            let tables = [];
+            let paymentMethods = [];
+            let currentSection = 'dashboard';
+
+            // Навигация
+            function showSection(sectionId) {
+                // Скрыть все секции
+                document.querySelectorAll('.section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Убрать активный класс с навигации
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Показать выбранную секцию
+                document.getElementById(sectionId).classList.add('active');
+                event.target.classList.add('active');
+                
+                // Обновить заголовок
+                const titles = {
+                    'dashboard': 'Главная панель',
+                    'orders': 'Управление заказами',
+                    'tables': 'Управление столиками',
+                    'menu': 'Меню',
+                    'cashier': 'Касса',
+                    'admin': 'Администрирование'
+                };
+                
+                document.getElementById('pageTitle').textContent = titles[sectionId] || 'POS System';
+                currentSection = sectionId;
+                
+                // Загрузить данные для секции
+                loadSectionData(sectionId);
+            }
+
+            // API функции
+            async function apiCall(endpoint, options = {}) {
+                try {
+                    const response = await fetch(`/api${endpoint}`, {
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...options.headers,
+                        },
+                        ...options,
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error("API Error:", error);
+                    alert("Ошибка соединения с сервером");
+                }
+            }
+
+            // Аутентификация
+            async function login() {
+                const pin = document.getElementById("pin").value;
+                if (!pin) {
+                    alert("Введите PIN код");
+                    return;
+                }
+
+                const result = await apiCall("/auth/login", {
+                    method: "POST",
+                    body: JSON.stringify({ pin }),
+                });
+
+                if (result && result.success) {
+                    currentUser = result.employee;
+                    document.getElementById("userName").textContent = currentUser.name;
+                    document.getElementById("userRole").textContent = getRoleText(currentUser.role);
+                    
+                    // Показать админ панель для админа
+                    if (currentUser.role === 'admin') {
+                        document.getElementById("adminMenuBtn").classList.remove("hidden");
+                    }
+                    
+                    document.getElementById("loginForm").classList.add("hidden");
+                    document.getElementById("mainApp").classList.remove("hidden");
+                    await loadAllData();
+                } else {
+                    alert("Неверный PIN код");
+                }
+            }
+
+            function logout() {
+                currentUser = null;
+                selectedTable = null;
+                currentOrder = [];
+                document.getElementById("loginForm").classList.remove("hidden");
+                document.getElementById("mainApp").classList.add("hidden");
+                document.getElementById("pin").value = "";
+            }
+
+            function getRoleText(role) {
+                const roles = {
+                    'admin': 'Администратор',
+                    'waiter': 'Официант',
+                    'user': 'Пользователь'
+                };
+                return roles[role] || role;
+            }
+
+            // Загрузка данных
+            async function loadAllData() {
+                await Promise.all([
+                    loadStats(),
+                    loadTables(),
+                    loadCategories(),
+                    loadItems(),
+                    loadPaymentMethods(),
+                ]);
+                updateCashierTables();
+            }
+
+            async function loadSectionData(sectionId) {
+                switch(sectionId) {
+                    case 'dashboard':
+                        await loadStats();
+                        break;
+                    case 'orders':
+                        await loadActiveOrders();
+                        await loadSalesStats();
+                        break;
+                    case 'tables':
+                        await loadTables();
+                        break;
+                    case 'menu':
+                        await loadCategories();
+                        await loadItems();
+                        break;
+                    case 'cashier':
+                        await loadItems();
+                        await loadPaymentMethods();
+                        updateCashierTables();
+                        break;
+                    case 'admin':
+                        if (currentUser.role === 'admin') {
+                            await loadAdminData();
+                        }
+                        break;
+                }
+            }
+
+            async function loadStats() {
+                const stats = await apiCall("/stats");
+                if (stats) {
+                    document.getElementById("statsGrid").innerHTML = `
+                        <div class="stat-card" onclick="showOrdersHistory()" style="cursor: pointer;">
+                            <h3>${stats.totalOrders}</h3>
+                            <p>Заказов сегодня</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>$${stats.totalSales.toFixed(2)}</h3>
+                            <p>Продаж сегодня</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.openOrders}</h3>
+                            <p>Активных заказов</p>
+                        </div>
+                        <div class="stat-card">
+                            <h3>${stats.occupiedTables}</h3>
+                            <p>Занято столов</p>
+                        </div>
+                    `;
+                }
+            }
+
+            async function loadTables() {
+                tables = await apiCall("/tables");
+                if (tables) {
+                    const tablesGrid = document.getElementById("tablesGrid");
+                    tablesGrid.innerHTML = tables.map(table => `
+                        <div class="table-card ${table.status === "occupied" ? "occupied" : ""}" 
+                             onclick="selectTable(${table.id})">
+                            <div class="table-status"></div>
+                            <h3>${table.name}</h3>
+                            <p>${table.seats} места</p>
+                            <p style="font-size: 12px; margin-top: 10px;">
+                                ${table.status === "occupied" ? "🔴 Занят" : "🟢 Свободен"}
+                            </p>
+                            ${table.status === "occupied" ? 
+                                `<button onclick="freeTable(${table.id}, event)" 
+                                         class="btn btn-danger btn-small" 
+                                         style="margin-top: 10px; width: 100%;">
+                                    Освободить
+                                </button>` : ""
+                            }
+                        </div>
+                    `).join("");
+                }
+            }
+
+            async function loadCategories() {
+                categories = await apiCall("/categories");
+                if (categories) {
+                    // Для меню
+                    const categoriesContainer = document.getElementById("menuCategories");
+                    categoriesContainer.innerHTML = `
+                        <button class="category-item active" onclick="selectCategory(null)">
+                            Все позиции
+                        </button>
+                    ` + categories.map(cat => `
+                        <button class="category-item" onclick="selectCategory(${cat.id})">
+                            ${cat.name}
+                        </button>
+                    `).join("");
+                }
+            }
+
+            async function loadItems(categoryId = null) {
+                const endpoint = categoryId ? `/items?categoryId=${categoryId}` : "/items";
+                items = await apiCall(endpoint);
+                if (items) {
+                    // Для раздела меню
+                    const itemsContainer = document.getElementById("menuItems");
+                    itemsContainer.innerHTML = items.map(item => `
+                        <div class="menu-item">
+                            <h3>${item.name}</h3>
+                            <p class="price">$${item.price.toFixed(2)}</p>
+                        </div>
+                    `).join("");
+
+                    // Для кассы
+                    const cashierItemsContainer = document.getElementById("cashierMenuItems");
+                    cashierItemsContainer.innerHTML = items.map(item => `
+                        <div class="menu-item" onclick="addToOrder(${item.id})">
+                            <h3>${item.name}</h3>
+                            <p class="price">$${item.price.toFixed(2)}</p>
+                        </div>
+                    `).join("");
+                }
+            }
+
+            async function loadPaymentMethods() {
+                paymentMethods = await apiCall("/payment-methods");
+                if (paymentMethods) {
+                    updatePaymentMethodsButtons();
+                }
+            }
+
+            function updatePaymentMethodsButtons() {
+                const paymentMethodsContainer = document.getElementById("paymentMethodsButtons");
+                const methodIcons = {
+                    'cash': '💵',
+                    'card': '💳',
+                    'aggregators': '📱',
+                    'qr': '🔳'
+                };
+                
+                paymentMethodsContainer.innerHTML = paymentMethods.map(method => `
+                    <button class="btn btn-success" onclick="processPayment('${method.code}')">
+                        ${methodIcons[method.code] || '💰'} ${method.name}
+                    </button>
+                `).join("");
+            }
+
+            function updateCashierTables() {
+                const tableSelect = document.getElementById("tableSelect");
+                tableSelect.innerHTML = '<option value="">Выберите стол</option>' +
+                    tables.filter(table => table.status === 'free').map(table => 
+                        `<option value="${table.id}">${table.name}</option>`
+                    ).join("");
+            }
+
+            // Выбор стола
+            function selectTable(tableId) {
+                selectedTable = tables.find(t => t.id === tableId);
+                if (selectedTable) {
+                    // Обновить визуал
+                    document.querySelectorAll(".table-card").forEach(card => {
+                        card.classList.remove("selected");
+                    });
+                    event.target.classList.add("selected");
+
+                    // Показать информацию о столе
+                    const tableInfo = document.getElementById("tableInfo");
+                    tableInfo.innerHTML = `
+                        <h3>Стол ${selectedTable.name}</h3>
+                        <p><strong>Мест:</strong> ${selectedTable.seats}</p>
+                        <p><strong>Статус:</strong> ${selectedTable.status === 'occupied' ? 'Занят' : 'Свободен'}</p>
+                        ${selectedTable.status === 'free' ? 
+                            `<button class="btn btn-primary" onclick="showSection('cashier'); document.getElementById('tableSelect').value='${selectedTable.id}';">
+                                Создать заказ
+                            </button>` : ''
+                        }
+                    `;
+                }
+            }
+
+            // Освобождение столика
+            async function freeTable(tableId, event) {
+                event.stopPropagation();
+                
+                if (confirm("Вы уверены, что хотите освободить этот столик?")) {
+                    const result = await apiCall(`/tables/${tableId}/free`, {
+                        method: "PUT",
+                    });
+
+                    if (result && result.success) {
+                        alert("Столик освобожден!");
+                        await loadAllData();
+                    } else {
+                        alert("Ошибка при освобождении столика");
+                    }
+                }
+            }
+
+            // Выбор категории
+            function selectCategory(categoryId) {
+                // Обновить активную кнопку
+                document.querySelectorAll(".category-item").forEach(btn => {
+                    btn.classList.remove("active");
+                });
+                event.target.classList.add("active");
+
+                // Обновить заголовок
+                const title = categoryId ? 
+                    categories.find(c => c.id === categoryId)?.name || 'Категория' : 
+                    'Все позиции';
+                document.getElementById("menuSectionTitle").textContent = title;
+
+                // Загрузить товары категории
+                loadItems(categoryId);
+            }
+
+            // Добавление товара в заказ
+            function addToOrder(itemId) {
+                const tableId = document.getElementById("tableSelect").value;
+                if (!tableId) {
+                    alert("Сначала выберите стол");
+                    return;
+                }
+
+                const item = items.find(i => i.id === itemId);
+                if (item) {
+                    const existingItem = currentOrder.find(orderItem => orderItem.id === itemId);
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        currentOrder.push({
+                            ...item,
+                            quantity: 1,
+                        });
+                    }
+                    updateOrderDisplay();
+                }
+            }
+
+            // Обновление отображения заказа
+            function updateOrderDisplay() {
+                const orderItemsContainer = document.getElementById("orderItems");
+                const orderTotalElement = document.getElementById("orderTotal");
+
+                if (currentOrder.length === 0) {
+                    orderItemsContainer.innerHTML = 
+                        '<p style="text-align: center; color: #95a5a6; padding: 20px;">Заказ пуст</p>';
+                    orderTotalElement.textContent = "0.00";
+                    return;
+                }
+
+                let total = 0;
+                orderItemsContainer.innerHTML = currentOrder.map(item => {
+                    const itemTotal = item.price * item.quantity;
+                    total += itemTotal;
+                    return `
+                        <div class="order-item">
+                            <div>
+                                <strong>${item.name}</strong><br>
+                                <small>$${item.price.toFixed(2)} × ${item.quantity}</small>
+                            </div>
+                            <div>
+                                <button onclick="removeFromOrder(${item.id})" 
+                                        style="background: none; border: none; color: #e74c3c; cursor: pointer; margin-right: 10px;">
+                                    ❌
+                                </button>
+                                <span>$${itemTotal.toFixed(2)}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join("");
+
+                orderTotalElement.textContent = total.toFixed(2);
+            }
+
+            // Удаление товара из заказа
+            function removeFromOrder(itemId) {
+                const index = currentOrder.findIndex(item => item.id === itemId);
+                if (index > -1) {
+                    if (currentOrder[index].quantity > 1) {
+                        currentOrder[index].quantity -= 1;
+                    } else {
+                        currentOrder.splice(index, 1);
+                    }
+                    updateOrderDisplay();
+                }
+            }
+
+            // Обработка оплаты
+            async function processPayment(method) {
+                const tableId = document.getElementById("tableSelect").value;
+                if (!tableId || currentOrder.length === 0) {
+                    alert("Выберите стол и добавьте товары в заказ");
+                    return;
+                }
+
+                const total = currentOrder.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+                // Если оплата наличными, показать модальное окно для расчета сдачи
+                if (method === 'cash') {
+                    document.getElementById("totalToPay").textContent = total.toFixed(2);
+                    document.getElementById("cashReceived").value = "";
+                    document.getElementById("changeAmount").textContent = "$0.00";
+                    document.getElementById("confirmPaymentBtn").disabled = true;
+                    document.getElementById("cashPaymentModal").style.display = "block";
+                    
+                    // Фокус на поле ввода
+                    setTimeout(() => {
+                        document.getElementById("cashReceived").focus();
+                    }, 100);
+                    return;
+                }
+
+                // Для других методов оплаты продолжаем как обычно
+                await completePurchase(method, total);
+            }
+
+            // Функция для завершения покупки
+            async function completePurchase(method, total, cashReceived = null) {
+                const tableId = document.getElementById("tableSelect").value;
+                
+                // Создать заказ
+                const orderData = {
+                    tableId: parseInt(tableId),
+                    employeeId: currentUser.id,
+                    items: currentOrder.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                    })),
+                    total: total,
+                };
+
+                const orderResult = await apiCall("/orders", {
+                    method: "POST",
+                    body: JSON.stringify(orderData),
+                });
+
+                if (orderResult && orderResult.success) {
+                    // Обработать платеж
+                    const paymentData = {
+                        paymentMethod: method,
+                        amount: total,
+                    };
+                    
+                    if (cashReceived) {
+                        paymentData.cashReceived = cashReceived;
+                        paymentData.change = cashReceived - total;
+                    }
+
+                    const paymentResult = await apiCall(`/orders/${orderResult.orderId}/payment`, {
+                        method: "POST",
+                        body: JSON.stringify(paymentData),
+                    });
+
+                    if (paymentResult && paymentResult.success) {
+                        let message = `Заказ оплачен! Сумма: $${total.toFixed(2)}`;
+                        if (cashReceived) {
+                            const change = cashReceived - total;
+                            message += `\nПолучено: $${cashReceived.toFixed(2)}\nСдача: $${change.toFixed(2)}`;
+                        }
+                        alert(message);
+
+                        // Очистить текущий заказ
+                        currentOrder = [];
+                        document.getElementById("tableSelect").value = "";
+                        updateOrderDisplay();
+
+                        // Обновить данные
+                        await loadAllData();
+                    } else {
+                        alert("Ошибка при обработке платежа");
+                    }
+                } else {
+                    alert("Ошибка при создании заказа");
+                }
+            }
+
+            // История заказов и другие функции
+            async function showOrdersHistory() {
+                const orders = await apiCall("/orders");
+                if (orders) {
+                    const today = new Date().toISOString().split('T')[0];
+                    const todayOrders = orders.filter(order => 
+                        order.createdAt.startsWith(today)
+                    );
+
+                    const ordersHistory = document.getElementById("ordersHistory");
+                    
+                    if (todayOrders.length === 0) {
+                        ordersHistory.innerHTML = '<p style="text-align: center; color: #95a5a6;">Сегодня заказов не было</p>';
+                    } else {
+                        ordersHistory.innerHTML = todayOrders.map(order => {
+                            const orderTime = new Date(order.createdAt).toLocaleTimeString('ru-RU');
+                            const table = tables.find(t => t.id === order.tableId);
+                            
+                            return `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <div>
+                                            <strong>Заказ #${order.id}</strong>
+                                            <br>
+                                            <small>${table ? table.name : 'Стол неизвестен'} • ${orderTime}</small>
+                                        </div>
+                                        <div>
+                                            <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        ${order.items.map(item => `
+                                            <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                                                <span>${item.name} × ${item.quantity}</span>
+                                                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; padding-top: 15px; border-top: 1px solid #e9ecef;">
+                                        <strong>Итого: $${order.total.toFixed(2)}</strong>
+                                        ${order.paymentMethod ? `<span style="color: #27ae60;">💳 ${order.paymentMethod === 'cash' ? 'Наличные' : 'Карта'}</span>` : ''}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                    
+                    document.getElementById("ordersModal").style.display = "block";
+                }
+            }
+
+            function closeOrdersModal() {
+                document.getElementById("ordersModal").style.display = "none";
+            }
+
+            function getStatusText(status) {
+                const statusTexts = {
+                    'new': 'Новый',
+                    'preparing': 'Готовится',
+                    'paid': 'Оплачен',
+                    'closed': 'Закрыт'
+                };
+                return statusTexts[status] || status;
+            }
+
+            // Загрузка данных для активных заказов
+            async function loadActiveOrders() {
+                const orders = await apiCall("/orders");
+                if (orders) {
+                    const activeOrders = orders.filter(order => 
+                        order.status === 'new' || order.status === 'preparing'
+                    );
+
+                    const activeOrdersList = document.getElementById("activeOrdersList");
+                    
+                    if (activeOrders.length === 0) {
+                        activeOrdersList.innerHTML = '<p style="text-align: center; color: #95a5a6;">Нет активных заказов</p>';
+                    } else {
+                        activeOrdersList.innerHTML = activeOrders.map(order => {
+                            const table = tables.find(t => t.id === order.tableId);
+                            const orderTime = new Date(order.createdAt).toLocaleTimeString('ru-RU');
+                            
+                            return `
+                                <div class="order-card">
+                                    <div class="order-header">
+                                        <div>
+                                            <strong>Заказ #${order.id}</strong>
+                                            <br>
+                                            <small>${table ? table.name : 'Стол неизвестен'} • ${orderTime}</small>
+                                        </div>
+                                        <span class="status-badge status-${order.status}">${getStatusText(order.status)}</span>
+                                    </div>
+                                    <div>
+                                        ${order.items.map(item => `
+                                            <div style="display: flex; justify-content: space-between; padding: 3px 0;">
+                                                <span>${item.name} × ${item.quantity}</span>
+                                                <span>$${(item.price * item.quantity).toFixed(2)}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div style="text-align: right; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e9ecef;">
+                                        <strong>Итого: $${order.total.toFixed(2)}</strong>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+            }
+
+            // Загрузка статистики продаж
+            async function loadSalesStats() {
+                const stats = await apiCall("/stats");
+                if (stats) {
+                    const salesStats = document.getElementById("salesStats");
+                    salesStats.innerHTML = `
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
+                                <h3 style="color: #3498db; margin-bottom: 10px;">$${stats.totalSales.toFixed(2)}</h3>
+                                <p>Продажи сегодня</p>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; text-align: center;">
+                                <h3 style="color: #27ae60; margin-bottom: 10px;">${stats.totalOrders}</h3>
+                                <p>Заказов сегодня</p>
+                            </div>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <button class="btn btn-primary" onclick="showOrdersHistory()">
+                                📋 Просмотреть историю
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+
+            // Админские функции
+            async function loadAdminData() {
+                // Загрузка категорий для управления
+                const categoriesData = await apiCall("/categories");
+                const categoriesManagement = document.getElementById("categoriesManagement");
+                const categorySelect = document.getElementById("newItemCategory");
+                
+                categoriesManagement.innerHTML = categoriesData.map(cat => `
+                    <div class="management-item">
+                        <div class="management-item-info">
+                            <strong>${cat.name}</strong>
+                        </div>
+                        <div class="management-item-actions">
+                            <button class="btn btn-danger btn-small" onclick="deleteCategory(${cat.id})">Удалить</button>
+                        </div>
+                    </div>
+                `).join('');
+
+                categorySelect.innerHTML = '<option value="">Выберите категорию</option>' +
+                    categoriesData.map(cat => `<option value="${cat.id}">${cat.name}</option>`).join('');
+
+                // Загрузка товаров для управления
+                const itemsData = await apiCall("/items");
+                const itemsManagement = document.getElementById("itemsManagement");
+                
+                itemsManagement.innerHTML = itemsData.map(item => {
+                    const category = categoriesData.find(cat => cat.id === item.categoryId);
+                    return `
+                        <div class="management-item">
+                            <div class="management-item-info">
+                                <strong>${item.name}</strong><br>
+                                <small>Цена: $${item.price.toFixed(2)} | Категория: ${category ? category.name : 'Не найдена'}</small>
+                            </div>
+                            <div class="management-item-actions">
+                                <button class="btn btn-danger btn-small" onclick="deleteItem(${item.id})">Удалить</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Загрузка методов оплаты для управления
+                const paymentMethodsData = await apiCall("/payment-methods");
+                const paymentMethodsManagement = document.getElementById("paymentMethodsManagement");
+                
+                paymentMethodsManagement.innerHTML = paymentMethodsData.map(method => `
+                    <div class="management-item">
+                        <div class="management-item-info">
+                            <strong>${method.name}</strong><br>
+                            <small>Код: ${method.code}</small>
+                        </div>
+                        <div class="management-item-actions">
+                            <button class="btn btn-danger btn-small" onclick="deletePaymentMethod(${method.id})">Удалить</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Добавить категорию
+            async function addCategory() {
+                const name = document.getElementById("newCategoryName").value.trim();
+                if (!name) {
+                    alert("Введите название категории");
+                    return;
+                }
+
+                const result = await apiCall("/categories", {
+                    method: "POST",
+                    body: JSON.stringify({ name })
+                });
+
+                if (result && result.success) {
+                    document.getElementById("newCategoryName").value = "";
+                    await loadAdminData();
+                    await loadCategories();
+                    alert("Категория добавлена!");
+                } else {
+                    alert("Ошибка при добавлении категории");
+                }
+            }
+
+            // Удалить категорию
+            async function deleteCategory(categoryId) {
+                if (!confirm("Вы уверены, что хотите удалить эту категорию?")) {
+                    return;
+                }
+
+                const result = await apiCall(`/categories/${categoryId}`, {
+                    method: "DELETE"
+                });
+
+                if (result && result.success) {
+                    await loadAdminData();
+                    await loadCategories();
+                    alert("Категория удалена!");
+                } else {
+                    alert("Ошибка при удалении категории");
+                }
+            }
+
+            // Добавить товар
+            async function addItem() {
+                const name = document.getElementById("newItemName").value.trim();
+                const price = document.getElementById("newItemPrice").value;
+                const categoryId = document.getElementById("newItemCategory").value;
+
+                if (!name || !price || !categoryId) {
+                    alert("Заполните все поля");
+                    return;
+                }
+
+                const result = await apiCall("/items", {
+                    method: "POST",
+                    body: JSON.stringify({ name, price: parseFloat(price), categoryId: parseInt(categoryId) })
+                });
+
+                if (result && result.success) {
+                    document.getElementById("newItemName").value = "";
+                    document.getElementById("newItemPrice").value = "";
+                    document.getElementById("newItemCategory").value = "";
+                    await loadAdminData();
+                    await loadItems();
+                    alert("Товар добавлен!");
+                } else {
+                    alert("Ошибка при добавлении товара");
+                }
+            }
+
+            // Удалить товар
+            async function deleteItem(itemId) {
+                if (!confirm("Вы уверены, что хотите удалить этот товар?")) {
+                    return;
+                }
+
+                const result = await apiCall(`/items/${itemId}`, {
+                    method: "DELETE"
+                });
+
+                if (result && result.success) {
+                    await loadAdminData();
+                    await loadItems();
+                    alert("Товар удален!");
+                } else {
+                    alert("Ошибка при удалении товара");
+                }
+            }
+
+            // Добавить метод оплаты
+            async function addPaymentMethod() {
+                const name = document.getElementById("newPaymentName").value.trim();
+                const code = document.getElementById("newPaymentCode").value.trim();
+
+                if (!name || !code) {
+                    alert("Заполните все поля");
+                    return;
+                }
+
+                const result = await apiCall("/payment-methods", {
+                    method: "POST",
+                    body: JSON.stringify({ name, code })
+                });
+
+                if (result && result.success) {
+                    document.getElementById("newPaymentName").value = "";
+                    document.getElementById("newPaymentCode").value = "";
+                    await loadAdminData();
+                    await loadPaymentMethods();
+                    alert("Метод оплаты добавлен!");
+                } else {
+                    alert(result.message || "Ошибка при добавлении метода оплаты");
+                }
+            }
+
+            // Удалить метод оплаты
+            async function deletePaymentMethod(methodId) {
+                if (!confirm("Вы уверены, что хотите удалить этот метод оплаты?")) {
+                    return;
+                }
+
+                const result = await apiCall(`/payment-methods/${methodId}`, {
+                    method: "DELETE"
+                });
+
+                if (result && result.success) {
+                    await loadAdminData();
+                    await loadPaymentMethods();
+                    alert("Метод оплаты удален!");
+                } else {
+                    alert("Ошибка при удалении метода оплаты");
+                }
+            }
+
+            // Функции для работы с модальным окном сдачи
+            function calculateChange() {
+                const totalToPay = parseFloat(document.getElementById("totalToPay").textContent);
+                const cashReceived = parseFloat(document.getElementById("cashReceived").value) || 0;
+                const change = cashReceived - totalToPay;
+                
+                const changeElement = document.getElementById("changeAmount");
+                const confirmBtn = document.getElementById("confirmPaymentBtn");
+                
+                if (change >= 0) {
+                    changeElement.textContent = `$${change.toFixed(2)}`;
+                    changeElement.style.color = "#27ae60";
+                    confirmBtn.disabled = false;
+                } else {
+                    changeElement.textContent = `$${Math.abs(change).toFixed(2)} недостает`;
+                    changeElement.style.color = "#e74c3c";
+                    confirmBtn.disabled = true;
+                }
+            }
+
+            function closeCashPaymentModal() {
+                document.getElementById("cashPaymentModal").style.display = "none";
+            }
+
+            async function confirmCashPayment() {
+                const totalToPay = parseFloat(document.getElementById("totalToPay").textContent);
+                const cashReceived = parseFloat(document.getElementById("cashReceived").value);
+                
+                if (cashReceived >= totalToPay) {
+                    closeCashPaymentModal();
+                    await completePurchase('cash', totalToPay, cashReceived);
+                } else {
+                    alert("Недостаточно средств!");
+                }
+            }
+
+            // Закрытие модальных окон
+            window.onclick = function(event) {
+                const ordersModal = document.getElementById("ordersModal");
+                const cashModal = document.getElementById("cashPaymentModal");
+                
+                if (event.target === ordersModal) {
+                    closeOrdersModal();
+                }
+                if (event.target === cashModal) {
+                    closeCashPaymentModal();
+                }
+            }
+
+            // Инициализация
+            document.addEventListener("DOMContentLoaded", function () {
+                document.getElementById("pin").addEventListener("keypress", function (e) {
+                    if (e.key === "Enter") {
+                        login();
+                    }
+                });
+                
+                // Обработка Enter в поле ввода наличных
+                document.addEventListener("keypress", function (e) {
+                    if (e.key === "Enter" && document.getElementById("cashPaymentModal").style.display === "block") {
+                        const confirmBtn = document.getElementById("confirmPaymentBtn");
+                        if (!confirmBtn.disabled) {
+                            confirmCashPayment();
+                        }
+                    }
+                });
+            });
+        </script>
+    </body>
+</html>
