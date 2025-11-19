@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>POS System</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background: #f5f5f5;
+                color: #333;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+
+            .header {
+                background: #2c3e50;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background-color 0.3s;
+            }
+
+            .btn-primary {
+                background: #3498db;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background: #2980b9;
+            }
+
+            .btn-success {
+                background: #27ae60;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background: #219a52;
+            }
+
+            .btn-danger {
+                background: #e74c3c;
+                color: white;
+            }
+
+            .btn-danger:hover {
+                background: #c0392b;
+            }
+
+            .main-content {
+                display: grid;
+                grid-template-columns: 1fr 1fr 400px;
+                gap: 20px;
+                min-height: 600px;
+            }
+
+            .section {
+                background: white;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            }
+
+            .section h2 {
+                margin-bottom: 15px;
+                color: #2c3e50;
+                border-bottom: 2px solid #ecf0f1;
+                padding-bottom: 10px;
+            }
+
+            .tables-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                gap: 15px;
+            }
+
+            .table-card {
+                background: #ecf0f1;
+                border: 2px solid #bdc3c7;
+                border-radius: 8px;
+                padding: 15px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .table-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+
+            .table-card.occupied {
+                background: #e8f5e8;
+                border-color: #27ae60;
+            }
+
+            .table-card.selected {
+                background: #dbeafe;
+                border-color: #3498db;
+            }
+
+            .menu-categories {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 15px;
+                flex-wrap: wrap;
+            }
+
+            .category-btn {
+                padding: 8px 16px;
+                border: 1px solid #ddd;
+                background: white;
+                border-radius: 20px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .category-btn.active {
+                background: #3498db;
+                color: white;
+                border-color: #3498db;
+            }
+
+            .menu-items {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .menu-item {
+                background: #f8f9fa;
+                border: 1px solid #e9ecef;
+                border-radius: 8px;
+                padding: 15px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .menu-item:hover {
+                background: #e9ecef;
+                transform: translateY(-2px);
+            }
+
+            .menu-item h3 {
+                margin-bottom: 5px;
+                color: #2c3e50;
+            }
+
+            .menu-item .price {
+                font-size: 18px;
+                font-weight: bold;
+                color: #27ae60;
+            }
+
+            .order-summary {
+                background: #f8f9fa;
+                border-radius: 8px;
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+
+            .order-item {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 8px 0;
+                border-bottom: 1px solid #e9ecef;
+            }
+
+            .order-item:last-child {
+                border-bottom: none;
+            }
+
+            .order-total {
+                font-size: 20px;
+                font-weight: bold;
+                color: #2c3e50;
+                text-align: right;
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 2px solid #3498db;
+            }
+
+            .login-form {
+                max-width: 400px;
+                margin: 100px auto;
+                background: white;
+                padding: 40px;
+                border-radius: 8px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #2c3e50;
+                font-weight: bold;
+            }
+
+            .form-group input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ddd;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            .stats {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+                margin-bottom: 20px;
+            }
+
+            .stat-card {
+                background: #3498db;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+            }
+
+            .stat-card h3 {
+                font-size: 24px;
+                margin-bottom: 5px;
+            }
+
+            .payment-methods {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                margin-top: 15px;
+            }
+
+            @media (max-width: 768px) {
+                .main-content {
+                    grid-template-columns: 1fr;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Форма входа -->
+        <div id="loginForm" class="login-form">
+            <h2 style="text-align: center; margin-bottom: 30px; color: #2c3e50">
+                Вход в систему
+            </h2>
+            <div class="form-group">
+                <label for="pin">PIN код:</label>
+                <input type="password" id="pin" placeholder="Введите PIN код" />
+            </div>
+            <button
+                class="btn btn-primary"
+                style="width: 100%"
+                onclick="login()"
+            >
+                Войти
+            </button>
+        </div>
+
+        <!-- Основной интерфейс -->
+        <div id="mainApp" class="hidden">
+            <div class="header">
+                <h1>🍽️ POS System</h1>
+                <div class="user-info">
+                    <span id="userName">Пользователь</span>
+                    <button class="btn btn-danger" onclick="logout()">
+                        Выйти
+                    </button>
+                </div>
+            </div>
+
+            <div class="container">
+                <div class="stats" id="stats">
+                    <!-- Статистика будет загружена динамически -->
+                </div>
+
+                <div class="main-content">
+                    <!-- Столы -->
+                    <div class="section">
+                        <h2>📍 Столы</h2>
+                        <div class="tables-grid" id="tablesGrid">
+                            <!-- Столы будут загружены динамически -->
+                        </div>
+                    </div>
+
+                    <!-- Меню -->
+                    <div class="section">
+                        <h2>🍕 Меню</h2>
+                        <div class="menu-categories" id="menuCategories">
+                            <!-- Категории будут загружены динамически -->
+                        </div>
+                        <div class="menu-items" id="menuItems">
+                            <!-- Товары будут загружены динамически -->
+                        </div>
+                    </div>
+
+                    <!-- Заказ -->
+                    <div class="section">
+                        <h2>📋 Заказ</h2>
+                        <div id="tableInfo" class="hidden">
+                            <p>
+                                <strong>Стол:</strong>
+                                <span id="selectedTableName"></span>
+                            </p>
+                            <hr style="margin: 10px 0" />
+                        </div>
+                        <div class="order-summary">
+                            <div id="orderItems">
+                                <p style="text-align: center; color: #95a5a6">
+                                    Выберите стол и добавьте товары
+                                </p>
+                            </div>
+                            <div class="order-total">
+                                Итого: $<span id="orderTotal">0.00</span>
+                            </div>
+                        </div>
+                        <div class="payment-methods">
+                            <button
+                                class="btn btn-success"
+                                onclick="processPayment('cash')"
+                            >
+                                💵 Наличные
+                            </button>
+                            <button
+                                class="btn btn-success"
+                                onclick="processPayment('card')"
+                            >
+                                💳 Карта
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Глобальные переменные
+            let currentUser = null;
+            let selectedTable = null;
+            let currentOrder = [];
+            let categories = [];
+            let items = [];
+            let tables = [];
+
+            // API функции
+            async function apiCall(endpoint, options = {}) {
+                try {
+                    const response = await fetch(`/api${endpoint}`, {
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...options.headers,
+                        },
+                        ...options,
+                    });
+                    return await response.json();
+                } catch (error) {
+                    console.error("API Error:", error);
+                    alert("Ошибка соединения с сервером");
+                }
+            }
+
+            // Аутентификация
+            async function login() {
+                const pin = document.getElementById("pin").value;
+                if (!pin) {
+                    alert("Введите PIN код");
+                    return;
+                }
+
+                const result = await apiCall("/auth/login", {
+                    method: "POST",
+                    body: JSON.stringify({ pin }),
+                });
+
+                if (result && result.success) {
+                    currentUser = result.employee;
+                    document.getElementById("userName").textContent =
+                        currentUser.name;
+                    document
+                        .getElementById("loginForm")
+                        .classList.add("hidden");
+                    document
+                        .getElementById("mainApp")
+                        .classList.remove("hidden");
+                    await loadData();
+                } else {
+                    alert("Неверный PIN код");
+                }
+            }
+
+            function logout() {
+                currentUser = null;
+                selectedTable = null;
+                currentOrder = [];
+                document.getElementById("loginForm").classList.remove("hidden");
+                document.getElementById("mainApp").classList.add("hidden");
+                document.getElementById("pin").value = "";
+            }
+
+            // Загрузка данных
+            async function loadData() {
+                await Promise.all([
+                    loadStats(),
+                    loadTables(),
+                    loadCategories(),
+                    loadItems(),
+                ]);
+            }
+
+            async function loadStats() {
+                const stats = await apiCall("/stats");
+                if (stats) {
+                    document.getElementById("stats").innerHTML = `
+                    <div class="stat-card">
+                        <h3>${stats.totalOrders}</h3>
+                        <p>Заказов сегодня</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>$${stats.totalSales.toFixed(2)}</h3>
+                        <p>Продаж</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.openOrders}</h3>
+                        <p>Активных заказов</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>${stats.occupiedTables}</h3>
+                        <p>Занято столов</p>
+                    </div>
+                `;
+                }
+            }
+
+            async function loadTables() {
+                tables = await apiCall("/tables");
+                if (tables) {
+                    const tablesGrid = document.getElementById("tablesGrid");
+                    tablesGrid.innerHTML = tables
+                        .map(
+                            (table) => `
+                    <div class="table-card ${table.status === "occupied" ? "occupied" : ""}" 
+                         onclick="selectTable(${table.id})">
+                        <h3>${table.name}</h3>
+                        <p>${table.seats} места</p>
+                        <p>${table.status === "occupied" ? "🔴 Занят" : "🟢 Свободен"}</p>
+                    </div>
+                `,
+                        )
+                        .join("");
+                }
+            }
+
+            async function loadCategories() {
+                categories = await apiCall("/categories");
+                if (categories) {
+                    const categoriesContainer =
+                        document.getElementById("menuCategories");
+                    categoriesContainer.innerHTML = categories
+                        .map(
+                            (cat) => `
+                    <button class="category-btn" onclick="selectCategory(${cat.id})">${cat.name}</button>
+                `,
+                        )
+                        .join("");
+                }
+            }
+
+            async function loadItems(categoryId = null) {
+                const endpoint = categoryId
+                    ? `/items?categoryId=${categoryId}`
+                    : "/items";
+                items = await apiCall(endpoint);
+                if (items) {
+                    const itemsContainer = document.getElementById("menuItems");
+                    itemsContainer.innerHTML = items
+                        .map(
+                            (item) => `
+                    <div class="menu-item" onclick="addToOrder(${item.id})">
+                        <h3>${item.name}</h3>
+                        <p class="price">$${item.price.toFixed(2)}</p>
+                    </div>
+                `,
+                        )
+                        .join("");
+                }
+            }
+
+            // Выбор стола
+            function selectTable(tableId) {
+                selectedTable = tables.find((t) => t.id === tableId);
+                if (selectedTable) {
+                    // Обновить визуал
+                    document.querySelectorAll(".table-card").forEach((card) => {
+                        card.classList.remove("selected");
+                    });
+                    event.target.classList.add("selected");
+
+                    // Показать информацию о столе
+                    document
+                        .getElementById("tableInfo")
+                        .classList.remove("hidden");
+                    document.getElementById("selectedTableName").textContent =
+                        selectedTable.name;
+                }
+            }
+
+            // Выбор категории
+            function selectCategory(categoryId) {
+                // Обновить активную кнопку
+                document.querySelectorAll(".category-btn").forEach((btn) => {
+                    btn.classList.remove("active");
+                });
+                event.target.classList.add("active");
+
+                // Загрузить товары категории
+                loadItems(categoryId);
+            }
+
+            // Добавление товара в заказ
+            function addToOrder(itemId) {
+                if (!selectedTable) {
+                    alert("Сначала выберите стол");
+                    return;
+                }
+
+                const item = items.find((i) => i.id === itemId);
+                if (item) {
+                    const existingItem = currentOrder.find(
+                        (orderItem) => orderItem.id === itemId,
+                    );
+                    if (existingItem) {
+                        existingItem.quantity += 1;
+                    } else {
+                        currentOrder.push({
+                            ...item,
+                            quantity: 1,
+                        });
+                    }
+                    updateOrderDisplay();
+                }
+            }
+
+            // Обновление отображения заказа
+            function updateOrderDisplay() {
+                const orderItemsContainer =
+                    document.getElementById("orderItems");
+                const orderTotalElement = document.getElementById("orderTotal");
+
+                if (currentOrder.length === 0) {
+                    orderItemsContainer.innerHTML =
+                        '<p style="text-align: center; color: #95a5a6;">Заказ пуст</p>';
+                    orderTotalElement.textContent = "0.00";
+                    return;
+                }
+
+                let total = 0;
+                orderItemsContainer.innerHTML = currentOrder
+                    .map((item) => {
+                        const itemTotal = item.price * item.quantity;
+                        total += itemTotal;
+                        return `
+                    <div class="order-item">
+                        <div>
+                            <strong>${item.name}</strong><br>
+                            <small>$${item.price.toFixed(2)} × ${item.quantity}</small>
+                        </div>
+                        <div>
+                            <button onclick="removeFromOrder(${item.id})" style="background: none; border: none; color: #e74c3c; cursor: pointer;">❌</button>
+                            <span style="margin-left: 10px;">$${itemTotal.toFixed(2)}</span>
+                        </div>
+                    </div>
+                `;
+                    })
+                    .join("");
+
+                orderTotalElement.textContent = total.toFixed(2);
+            }
+
+            // Удаление товара из заказа
+            function removeFromOrder(itemId) {
+                const index = currentOrder.findIndex(
+                    (item) => item.id === itemId,
+                );
+                if (index > -1) {
+                    if (currentOrder[index].quantity > 1) {
+                        currentOrder[index].quantity -= 1;
+                    } else {
+                        currentOrder.splice(index, 1);
+                    }
+                    updateOrderDisplay();
+                }
+            }
+
+            // Обработка оплаты
+            async function processPayment(method) {
+                if (!selectedTable || currentOrder.length === 0) {
+                    alert("Добавьте товары в заказ");
+                    return;
+                }
+
+                const total = currentOrder.reduce(
+                    (sum, item) => sum + item.price * item.quantity,
+                    0,
+                );
+
+                // Создать заказ
+                const orderData = {
+                    tableId: selectedTable.id,
+                    employeeId: currentUser.id,
+                    items: currentOrder.map((item) => ({
+                        id: item.id,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                    })),
+                    total: total,
+                };
+
+                const orderResult = await apiCall("/orders", {
+                    method: "POST",
+                    body: JSON.stringify(orderData),
+                });
+
+                if (orderResult && orderResult.success) {
+                    // Обработать платеж
+                    const paymentResult = await apiCall(
+                        `/orders/${orderResult.orderId}/payment`,
+                        {
+                            method: "POST",
+                            body: JSON.stringify({
+                                paymentMethod: method,
+                                amount: total,
+                            }),
+                        },
+                    );
+
+                    if (paymentResult && paymentResult.success) {
+                        alert(`Заказ оплачен! Сумма: $${total.toFixed(2)}`);
+
+                        // Очистить текущий заказ
+                        currentOrder = [];
+                        selectedTable = null;
+                        updateOrderDisplay();
+                        document
+                            .getElementById("tableInfo")
+                            .classList.add("hidden");
+
+                        // Обновить данные
+                        await loadData();
+                    } else {
+                        alert("Ошибка при обработке платежа");
+                    }
+                } else {
+                    alert("Ошибка при создании заказа");
+                }
+            }
+
+            // Инициализация при загрузке страницы
+            document.addEventListener("DOMContentLoaded", function () {
+                document
+                    .getElementById("pin")
+                    .addEventListener("keypress", function (e) {
+                        if (e.key === "Enter") {
+                            login();
+                        }
+                    });
+            });
+        </script>
+    </body>
+</html>
